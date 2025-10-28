@@ -2,18 +2,24 @@ from pymoo.core.sampling import Sampling
 import numpy as np
 
 class RandomSampling(Sampling):
-    def __init__(self, width, height, start, end):
+    def __init__(self, width, height, start, end, optimal_path: list = None):
         super().__init__()
         self.width = width
         self.height = height
         self.start = start
         self.end = end
+        self.optimal_path = optimal_path
 
     def _do(self, problem, n_samples, **kwargs):
         X = np.full((n_samples , 1), None, dtype=object)
         for i in range(n_samples):
             path = self._random_path()
             X[i, 0] =path
+        
+        # Insert the optimal path if one is supplied
+        if self.optimal_path is not None:
+            random_index = np.random.randint(0, len(X))
+            X[random_index, 0] = self.optimal_path
         return X
 
     def _random_path(self):

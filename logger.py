@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 import csv
+import pickle
 
 class Logger():
     basePath = "./log"
@@ -12,6 +13,9 @@ class Logger():
         """Init method that creates log directory if it does not exist."""
         if not os.path.exists("./log"):
             os.mkdir("./log")
+        
+        if not os.path.exists("./pickle_objects"):
+            os.mkdir("./pickle_objects")
     
     def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, totalTime):
         """Creates a logfile for the path."""
@@ -147,3 +151,14 @@ class Logger():
         frame = pd.DataFrame.from_dict(log_obj, orient='index')
         frame = frame.transpose()
         frame.to_csv(self.logPath +"/optLog.csv", mode='a', index = False, header=False)
+
+    def log_best_paths_as_pickle(self, object: dict, filename: str) -> None:
+        """Saves the best paths to a pickle file named appropriately.
+
+        Args:
+            object (dict): Best paths and objective values as dict
+            filename (str): Chosen filename
+        """
+        with open(f"./pickle_objects/{filename}", "wb") as f:
+            pickle.dump(object, f)
+            f.close()

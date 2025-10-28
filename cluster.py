@@ -24,11 +24,24 @@ def main():
             #  853402, 996794, 489263, 972757, 269475, 282126, 397562, 400459, 
             #  353156, 202975, 684799, 190391, 591868, 296699, 856797]
     combinations = getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, n_eval, shiftingMethods, seeds)
-    callMultiprocessing(combinations)
+    
+    args = []
+    for combination in combinations:
+        args.append((combination, False))
 
-def callMultiprocessing(combinations: list):
+    callMultiprocessing(args)
+
+    # Second run with results of first run here
+    args = []
+    for combination in combinations:
+        args.append((combination, True))
+    
+    print("Starting second run")
+    callMultiprocessing(args)
+
+def callMultiprocessing(args: tuple):
     with get_context("spawn").Pool(48) as pool:
-        pool.map(multiProcessSimulations, combinations)
+        pool.map(multiProcessSimulations, args)
         pool.close()
 
 def getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, n_eval, shiftingMethods, seeds) -> list:
@@ -42,8 +55,9 @@ def getCombinations(maps, width, height, algorithms, crossovers, mutations, pop,
                             combinations.append([map, width, height, algorithm, crossover, mutation, pop, n_eval, shiftingMethod, seed])
     return combinations
 
-def multiProcessSimulations(c: list):
-    m.simulation(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9])
+def multiProcessSimulations(args: tuple):
+    c, second_run = args
+    m.simulation(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], second_run)
 
 if __name__ == "__main__":
     freeze_support()

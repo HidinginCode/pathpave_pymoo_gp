@@ -5,6 +5,7 @@ import time
 import os
 import pickle
 import shutil
+import random
 
 from pymoo.optimize import minimize
 from pymoo.operators.selection.rnd import RandomSelection
@@ -59,7 +60,7 @@ def main():
     simulation(args.map, args.w, args.h, args.algo, args.cross, args.mut, args.pop, args.neval, args.shift, args.seed)
     #print(args.map)
 
-def simulation(m, w, h, a, c, mut, p, n, sm, s):
+def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
     startingTime = time.time()
 # Set shifiting method if defined
     if sm != None:
@@ -104,7 +105,7 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s):
             obstacle_map = maps[m](num_walks=width*height)
     else:
         obstacle_map = obstacles.create_radial_gradient_obstacles()
- 
+
     # Define the problem
     problem = GridWorldProblem(width, height, obstacle_map, start, end, shiftingMethod)
 
@@ -113,8 +114,6 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s):
         pop_size = p
     else:
         pop_size = 50
-
-    sampling = RandomSampling(width, height, start, end)
 
     crossovers = [CrossingCrossover(prob_crossover=prob_crossover), CopyCrossover(), OnePointCrossover(prob_crossover, (width, height)), TwoPointCrossover(prob_crossover, (width, height))]
     if c != None:
@@ -133,6 +132,14 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s):
     repair = PathRepair()
     #repair = errorRepair()
     ref_dirs = get_reference_directions("das-dennis", 2, n_partitions=10)
+
+    if not second_run:
+        sampling = RandomSampling(width, height, start, end)
+    else:
+        with open(f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{n}-{sm}-{s}.pickle", "rb") as f:
+            loaded_dir = pickle.load(f)
+            best_path = random.choice(loaded_dir["Paths"]) #Chooses at random from optimal paths
+        sampling = RandomSampling(width, height, start, end, best_path)
 
     # Initialize the NSGA2 algorithm
     #Use the following line for Random Selection in the algorithms. Otherwise its binary Tournament Selection 
@@ -268,17 +275,11 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s):
     log.log(paths, pareto_front[:, 0], pareto_front[:, 1])
     print(f"Paths: {paths}, Pareto Front: {pareto_front[:, 0]}, Pareto Front: {pareto_front[:, 1]}")
 
-    if os.path.exists("./pickle_objects"):
-        shutil.rmtree("./pickle_objects")
-    
-    os.mkdir("./pickle_objects")
-
-    pickle_file_path = f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{n}-{sm}-{s}.pickle"
-    with open(pickle_file_path, "wb") as f:
-        pickle.dump({"Paths": paths,
+    pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{n}-{sm}-{s}.pickle"
+    object_to_log = {"Paths": paths,
                     "Steps": pareto_front[:, 0],
-                    "Shifted_Weight": pareto_front[:, 1]}, f)
-        f.close()
+                    "Shifted_Weight": pareto_front[:, 1]}
+    log.log_best_paths_as_pickle(object_to_log, pickle_filename)
 
 if __name__ == "__main__":
     main()
