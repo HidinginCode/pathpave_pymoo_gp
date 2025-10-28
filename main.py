@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import argparse
 import time
+import os
+import pickle
+import shutil
 
 from pymoo.optimize import minimize
 from pymoo.operators.selection.rnd import RandomSelection
@@ -16,6 +19,8 @@ from pymoo.algorithms.moo.age import AGEMOEA
 from pymoo.algorithms.moo.dnsga2 import DNSGA2
 from pymoo.algorithms.moo.sms import SMSEMOA
 from pymoo.algorithms.moo.ctaea import CTAEA
+from pymoo.config import Config
+Config.warnings['not_compiled'] = False
 
 from sampling import RandomSampling
 from mutations import CopyMutation, ChangePartsMutation, RectangleMutation, RadiusSamplingMutation
@@ -157,11 +162,12 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s):
     callback = MyCallback()
 
     # Run optimization
+    print(f"Worker {os.getpid()} started optimization...")
     res = minimize(problem
                    ,algorithm
                    ,('n_eval', n_eval)
                    ,seed=seed
-                   ,verbose=True
+                   ,verbose=False
                    ,callback=callback)
 
     totalTime = time.time() - startingTime
@@ -257,9 +263,22 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s):
     ax.set_yticklabels(np.arange(0, height, 5))
 
     #plt.title("Obstacle Environment")
-    plt.show()
-    #plt.savefig(log.logPath+"/mapPlot")
+    #plt.show()
+    plt.savefig(log.logPath+"/mapPlot")
     log.log(paths, pareto_front[:, 0], pareto_front[:, 1])
+    print(f"Paths: {paths}, Pareto Front: {pareto_front[:, 0]}, Pareto Front: {pareto_front[:, 1]}")
+
+    if os.path.exists("./pickle_objects"):
+        shutil.rmtree("./pickle_objects")
+    
+    os.mkdir("./pickle_objects")
+
+    pickle_file_path = f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{n}-{sm}-{s}.pickle"
+    with open(pickle_file_path, "wb") as f:
+        pickle.dump({"Paths": paths,
+                    "Steps": pareto_front[:, 0],
+                    "Shifted_Weight": pareto_front[:, 1]}, f)
+        f.close()
 
 if __name__ == "__main__":
     main()

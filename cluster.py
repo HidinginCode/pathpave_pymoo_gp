@@ -5,7 +5,7 @@ from multiprocessing import Process, Pool, freeze_support, get_context
 
 def main():
     #maps = [0,1,2,3,4,5,6,7]
-    maps = [4]
+    maps = [3]
     width = 50
     height = 50
     #algorithms = [0,1,2,3,4,5,6,7]
@@ -16,13 +16,13 @@ def main():
     mutations = [0]
     pop = 100
     #n_eval = 100000
-    n_eval = 50000
+    n_eval = 1000
     #shiftingMethods = [0,1,2,3]
     shiftingMethods = [1]
-    seeds = [42, 69, 420, 1080, 1337, 617991, 799403, 302116, 
-             414881, 718149, 659294, 327967, 4978, 167867, 247737, 890651, 
-             853402, 996794, 489263, 972757, 269475, 282126, 397562, 400459, 
-             353156, 202975, 684799, 190391, 591868, 296699, 856797]
+    seeds = [42, 69, 420, 1080, 1337] #617991, 799403, 302116, 
+            #  414881, 718149, 659294, 327967, 4978, 167867, 247737, 890651, 
+            #  853402, 996794, 489263, 972757, 269475, 282126, 397562, 400459, 
+            #  353156, 202975, 684799, 190391, 591868, 296699, 856797]
     combinations = getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, n_eval, shiftingMethods, seeds)
     callMultiprocessing(combinations)
 
