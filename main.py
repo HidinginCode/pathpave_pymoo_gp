@@ -36,7 +36,6 @@ from obstacles import Obstacles
 
 from logger import Logger
 #Create logger
-log = Logger()
 
 # Define parameters
 width = 50
@@ -61,6 +60,7 @@ def main():
     #print(args.map)
 
 def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
+    log = Logger(second_run)
     startingTime = time.time()
 # Set shifiting method if defined
     if sm != None:

@@ -8,14 +8,23 @@ import csv
 import pickle
 
 class Logger():
-    basePath = "./log"
-    def __init__(self) -> None:
+    def __init__(self, second_run: bool = False) -> None:
         """Init method that creates log directory if it does not exist."""
-        if not os.path.exists("./log"):
-            os.mkdir("./log")
+        if not second_run:
+            self.basePath = "./log"
+            self.pickle_path = "./pickle_objects"
+            if not os.path.exists("./log"):
+                os.mkdir("./log")
         
-        if not os.path.exists("./pickle_objects"):
-            os.mkdir("./pickle_objects")
+            if not os.path.exists("./pickle_objects"):
+                os.mkdir("./pickle_objects")
+        else:
+            self.basePath = "./log_2"
+            self.pickle_path = "./pickle_objects_2"
+            if not os.path.exists("./log_2"):
+                os.mkdir("./log_2")
+            if not os.path.exists("./pickle_objects_2"):
+                os.mkdir("./pickle_objects_2")
     
     def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, totalTime):
         """Creates a logfile for the path."""
@@ -27,8 +36,8 @@ class Logger():
         os.mkdir(self.logPath)
 
         #Check if csv exists
-        if not os.path.exists("./log/results.csv"):
-            with open("./log/results.csv", "w") as f:
+        if not os.path.exists(f"{self.basePath}/results.csv"):
+            with open(f"{self.basePath}/results.csv", "w") as f:
                 #We add the header of the file here
                 header = "map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, numberOfNonDominated, steps, shiftedWeight, paths, time\n"
                 f.write(header)
@@ -86,7 +95,7 @@ class Logger():
         }
         frame = pd.DataFrame.from_dict(log_obj, orient='index')
         frame = frame.transpose()
-        frame.to_csv("./log/results.csv", mode='a', index = False, header=False)
+        frame.to_csv(f"{self.basePath}/results.csv", mode='a', index = False, header=False)
 
     def logAllGenerationalSteps(self, objectiveTuple, paths, generation):
         #Check if csv for generations exist
@@ -159,6 +168,6 @@ class Logger():
             object (dict): Best paths and objective values as dict
             filename (str): Chosen filename
         """
-        with open(f"./pickle_objects/{filename}", "wb") as f:
+        with open(f"{self.pickle_path}/{filename}", "wb") as f:
             pickle.dump(object, f)
             f.close()

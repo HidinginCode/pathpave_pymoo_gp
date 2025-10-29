@@ -131,3 +131,7 @@ dmypy.json
 
 .pickle_objects
 pickle_objects/
+.pickle_objects_2
+pickle_objects_2/
+.log_2
+log_2/
