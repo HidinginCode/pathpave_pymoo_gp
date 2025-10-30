@@ -20,15 +20,14 @@ class Logger():
                 os.mkdir("./pickle_objects")
         else:
             self.basePath = "./log_2"
-            self.pickle_path = "./pickle_objects_2"
+            self.pickle_path = "./pickle_objects"
             if not os.path.exists("./log_2"):
                 os.mkdir("./log_2")
-            if not os.path.exists("./pickle_objects_2"):
-                os.mkdir("./pickle_objects_2")
     
-    def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, totalTime):
+    def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, eval_ratio, totalTime):
         """Creates a logfile for the path."""
-        self.logName = f"{map.name}_{width}_{height}_{algorithm.__class__.__name__}_{crossover.__class__.__name__}_{mutation.__class__.__name__}_{popsize}_{n_eval}_{samplingFunction.__class__.__name__}_{repairFunction.__class__.__name__}_{shiftingMethod}_{seed}"
+        eval_ratio_str = str(eval_ratio).replace(".", "_")
+        self.logName = f"{map.name}_{width}_{height}_{algorithm.__class__.__name__}_{crossover.__class__.__name__}_{mutation.__class__.__name__}_{popsize}_{eval_ratio_str}_{samplingFunction.__class__.__name__}_{repairFunction.__class__.__name__}_{shiftingMethod}_{seed}"
         self.logPath = self.basePath + "/" + self.logName
         # If a log for this already exists delete it
         if os.path.exists(self.logPath):

@@ -6,7 +6,6 @@ import os
 import pickle
 import shutil
 import random
-
 from pymoo.optimize import minimize
 from pymoo.operators.selection.rnd import RandomSelection
 from pymoo.algorithms.moo.nsga2 import NSGA2
@@ -59,7 +58,7 @@ def main():
     simulation(args.map, args.w, args.h, args.algo, args.cross, args.mut, args.pop, args.neval, args.shift, args.seed)
     #print(args.map)
 
-def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
+def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, second_run: bool):
     log = Logger(second_run)
     startingTime = time.time()
 # Set shifiting method if defined
@@ -133,10 +132,12 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
     #repair = errorRepair()
     ref_dirs = get_reference_directions("das-dennis", 2, n_partitions=10)
 
+    eval_ratio_str = str(eval_ratio).replace(".", "_")
+
     if not second_run:
         sampling = RandomSampling(width, height, start, end)
     else:
-        with open(f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{n}-{sm}-{s}.pickle", "rb") as f:
+        with open(f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{0}-{s}.pickle", "rb") as f:
             loaded_dir = pickle.load(f)
             best_path = random.choice(loaded_dir["Paths"]) #Chooses at random from optimal paths
         sampling = RandomSampling(width, height, start, end, best_path)
@@ -182,7 +183,7 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
     # Extract the Pareto front data
     pareto_front = res.F
     #LOGGING
-    log.createLogFile(obstacles, width, height, algorithm, crossover, mutation, pop_size, n_eval, sampling, repair, shiftingMethod, seed, totalTime)
+    log.createLogFile(obstacles, width, height, algorithm, crossover, mutation, pop_size, n_eval, sampling, repair, shiftingMethod, seed, eval_ratio_str ,totalTime)
 
     for i in range(len(callback.data["paths"])):
         log.logAllGenerationalSteps(callback.data["objectiveValues"][i], callback.data["paths"][i], i)
@@ -196,20 +197,13 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
     po_paths_per_gen = callback.data["optPaths"]
     all_fitness_values_per_gen = callback.data["objectiveValues"]
     all_paths_per_gen = callback.data["paths"]
-    
-    #print(len(all_fitness_values_per_gen)) # = 200 for 200 Generations
-    #print(len(all_fitness_values_per_gen[0])) # = 50 for 50 individuals
-    #print(all_paths_per_gen)
-    #print(po_fitness_values_per_gen)
-    #print(po_paths_per_gen)
 
     # Plot the Pareto front
     plt.figure(figsize=(10, 8))
     
     plt.scatter(po_fitness_values_per_gen[0][:, 0], po_fitness_values_per_gen[0][:, 1], label='First Pareto Front', color='b')
     plt.scatter(po_fitness_values_per_gen[-1][:, 0], po_fitness_values_per_gen[-1][:, 1], label='Last Pareto Front', color='r')
-    
-    #plt.scatter(all_fitness_values_per_gen[:, 0], all_fitness_values_per_gen[:, 1], label='Pareto Front', color='b')
+
 
     # Customize the plot
     plt.xlabel('Steps Taken')
@@ -217,32 +211,15 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
     plt.title('Pareto Front')
     plt.legend()
     plt.grid(True)
-    # Show the plot
-    #plt.show()
-    # Save plot
     plt.savefig(log.logPath+"/paretoPlot")
     # Extract the paths from res.X
     #paths = res.X.squeeze().tolist()
     
     # This would draw all paths of the final population
     paths = po_paths_per_gen[-1].squeeze().tolist()
-    #print(paths)
-    #print(len(paths))
-    #print(len(paths[0]))
-    #paths = all_paths_per_gen[-1].squeeze().tolist()
-    
-    # Print the paths
-    #print("Paths:")
-    #for path in paths:
-    #    print(path)
 
     # Create a plot for the final grid with paths
     fig, ax = plt.subplots(figsize=(7, 7))
-
-    # Display the obstacle weights in the grid
-    #for i in range(height):
-    #    for j in range(width):
-    #        ax.text(j, i, f'{obstacles[i, j]:.2f}', va='center', ha='center', fontsize=12)
 
     # Plot the grid
     ax.imshow(obstacle_map, cmap='Greys', interpolation='nearest')
@@ -269,13 +246,22 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, second_run: bool):
     ax.set_xticklabels(np.arange(0, width, 5))
     ax.set_yticklabels(np.arange(0, height, 5))
 
-    #plt.title("Obstacle Environment")
-    #plt.show()
     plt.savefig(log.logPath+"/mapPlot")
     log.log(paths, pareto_front[:, 0], pareto_front[:, 1])
-    print(f"Paths: {paths}, Pareto Front: {pareto_front[:, 0]}, Pareto Front: {pareto_front[:, 1]}")
+    #print(f"Paths: {paths}, Pareto Front: {pareto_front[:, 0]}, Pareto Front: {pareto_front[:, 1]}")
 
-    pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{n}-{sm}-{s}.pickle"
+    # for path in paths:
+    #     for tup in path:
+    #         if type(tup) != tuple:
+    #             print(f"Path: {path}")
+    #             print(f"Paths: {paths}")
+    #             if len(tup) != 2:
+    #                 print(f"Path is fucked up: {tup}")
+    #             raise ValueError("Path was fucked up")
+    if type(paths[0]) != list:
+        paths = [paths]
+    
+    pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{int(second_run)}-{s}.pickle"
     object_to_log = {"Paths": paths,
                     "Steps": pareto_front[:, 0],
                     "Shifted_Weight": pareto_front[:, 1]}
