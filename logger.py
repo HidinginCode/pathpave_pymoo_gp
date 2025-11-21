@@ -10,24 +10,29 @@ import pickle
 class Logger():
     def __init__(self, second_run: bool = False) -> None:
         """Init method that creates log directory if it does not exist."""
+        self.second_run = second_run
         if not second_run:
             self.basePath = "./log"
             self.pickle_path = "./pickle_objects"
-            if not os.path.exists("./log"):
-                os.mkdir("./log")
+            # if not os.path.exists("./log"):
+            #     os.mkdir("./log")
         
             if not os.path.exists("./pickle_objects"):
                 os.mkdir("./pickle_objects")
         else:
             self.basePath = "./log_2"
-            self.pickle_path = "./pickle_objects"
-            if not os.path.exists("./log_2"):
-                os.mkdir("./log_2")
+            self.pickle_path = "./pickle_objects_2"
+
+            # if not os.path.exists("./log_2"):
+            #     os.mkdir("./log_2")
+
+            if not os.path.exists("./pickle_objects_2"):
+                os.mkdir("./pickle_objects_2")
     
-    def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, eval_ratio, totalTime):
+    def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, eval_ratio, number_of_opt_solutions, totalTime):
         """Creates a logfile for the path."""
         eval_ratio_str = str(eval_ratio).replace(".", "_")
-        self.logName = f"{map.name}_{width}_{height}_{algorithm.__class__.__name__}_{crossover.__class__.__name__}_{mutation.__class__.__name__}_{popsize}_{eval_ratio_str}_{samplingFunction.__class__.__name__}_{repairFunction.__class__.__name__}_{shiftingMethod}_{seed}"
+        self.logName = f"{map.name}_{width}_{height}_{algorithm.__class__.__name__}_{crossover.__class__.__name__}_{mutation.__class__.__name__}_{popsize}_{eval_ratio_str}_{number_of_opt_solutions}_{samplingFunction.__class__.__name__}_{repairFunction.__class__.__name__}_{shiftingMethod}_{seed}"
         self.logPath = self.basePath + "/" + self.logName
         # If a log for this already exists delete it
         if os.path.exists(self.logPath):
@@ -56,6 +61,7 @@ class Logger():
         self.repairFunction = repairFunction.__class__.__name__
         self.seed = seed
         self.time = totalTime
+        self.number_of_opt_solutions = number_of_opt_solutions
 
         #TODO: Make this better, just temporary solution
         if shiftingMethod == 0:

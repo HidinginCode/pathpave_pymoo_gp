@@ -18,7 +18,8 @@ def main():
             #  414881, 718149, 659294, 327967, 4978, 167867, 247737, 890651, 
             #  853402, 996794, 489263, 972757, 269475, 282126, 397562, 400459, 
             #  353156, 202975, 684799, 190391, 591868, 296699, 856797]
-    combinations_run1, combinations_run2 = getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, total_n_eval, eval_ratios, shiftingMethods, seeds)
+    number_of_opt_solutions = [1, 2, 3]
+    combinations_run1, combinations_run2 = getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, total_n_eval, eval_ratios, number_of_opt_solutions, shiftingMethods, seeds)
     
     # We need to test different ratios for the n_evals in both runs
 
@@ -43,7 +44,7 @@ def callMultiprocessing(args: tuple):
         pool.map(multiProcessSimulations, args)
         pool.close()
 
-def getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, total_eval, eval_ratios, shiftingMethods, seeds) -> list:
+def getCombinations(maps, width, height, algorithms, crossovers, mutations, pop, total_eval, eval_ratios, number_of_opt_solutions, shiftingMethods, seeds) -> list:
     combinations_run1 = []
     combinations_run2 = []
     for map in maps:
@@ -53,15 +54,16 @@ def getCombinations(maps, width, height, algorithms, crossovers, mutations, pop,
                     for shiftingMethod in shiftingMethods:
                         for seed in seeds:
                             for ratio in eval_ratios:
-                                combinations_run1.append([map, width, height, algorithm, crossover, mutation, pop, int(ratio*total_eval), shiftingMethod, seed, ratio])
-                                combinations_run2.append([map, width, height, algorithm, crossover, mutation, pop, int((1-ratio)*total_eval), shiftingMethod, seed, ratio])
+                                for opt_solutions in number_of_opt_solutions:
+                                    combinations_run1.append([map, width, height, algorithm, crossover, mutation, pop, int(ratio*total_eval), shiftingMethod, seed, ratio, opt_solutions])
+                                    combinations_run2.append([map, width, height, algorithm, crossover, mutation, pop, int((1-ratio)*total_eval), shiftingMethod, seed, ratio, opt_solutions])
 
 
     return (combinations_run1, combinations_run2)
 
 def multiProcessSimulations(args: tuple):
     c, second_run = args
-    m.simulation(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], second_run)
+    m.simulation(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], second_run)
 
 if __name__ == "__main__":
     freeze_support()

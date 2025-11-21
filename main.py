@@ -58,7 +58,7 @@ def main():
     simulation(args.map, args.w, args.h, args.algo, args.cross, args.mut, args.pop, args.neval, args.shift, args.seed)
     #print(args.map)
 
-def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, second_run: bool):
+def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_solutions:int, second_run: bool):
     log = Logger(second_run)
     startingTime = time.time()
 # Set shifiting method if defined
@@ -139,8 +139,11 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, second_run: bo
     else:
         with open(f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{0}-{s}.pickle", "rb") as f:
             loaded_dir = pickle.load(f)
-            best_path = random.choice(loaded_dir["Paths"]) #Chooses at random from optimal paths
-        sampling = RandomSampling(width, height, start, end, best_path)
+
+            best_paths = []
+            for _ in range(number_of_opt_solutions):
+                best_paths.append(random.choice(loaded_dir["Paths"]))
+        sampling = RandomSampling(width, height, start, end, best_paths)
 
     # Initialize the NSGA2 algorithm
     #Use the following line for Random Selection in the algorithms. Otherwise its binary Tournament Selection 
@@ -183,13 +186,13 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, second_run: bo
     # Extract the Pareto front data
     pareto_front = res.F
     #LOGGING
-    log.createLogFile(obstacles, width, height, algorithm, crossover, mutation, pop_size, n_eval, sampling, repair, shiftingMethod, seed, eval_ratio_str ,totalTime)
+    #log.createLogFile(obstacles, width, height, algorithm, crossover, mutation, pop_size, n_eval, sampling, repair, shiftingMethod, seed, eval_ratio_str , number_of_opt_solutions, totalTime)
 
-    for i in range(len(callback.data["paths"])):
-        log.logAllGenerationalSteps(callback.data["objectiveValues"][i], callback.data["paths"][i], i)
+    #for i in range(len(callback.data["paths"])):
+    #    log.logAllGenerationalSteps(callback.data["objectiveValues"][i], callback.data["paths"][i], i)
 
-    for i in range(len(callback.data["optPaths"])):
-        log.logOptGenerationalSteps(callback.data["optObjectiveValues"][i], callback.data["optPaths"][i], i)
+    #for i in range(len(callback.data["optPaths"])):
+    #    log.logOptGenerationalSteps(callback.data["optObjectiveValues"][i], callback.data["optPaths"][i], i)
     #print(pareto_front[:, 0])
 
     # Extract the Pareto optimal paths and fitness values
@@ -199,55 +202,55 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, second_run: bo
     all_paths_per_gen = callback.data["paths"]
 
     # Plot the Pareto front
-    plt.figure(figsize=(10, 8))
+    # plt.figure(figsize=(10, 8))
     
-    plt.scatter(po_fitness_values_per_gen[0][:, 0], po_fitness_values_per_gen[0][:, 1], label='First Pareto Front', color='b')
-    plt.scatter(po_fitness_values_per_gen[-1][:, 0], po_fitness_values_per_gen[-1][:, 1], label='Last Pareto Front', color='r')
+    # plt.scatter(po_fitness_values_per_gen[0][:, 0], po_fitness_values_per_gen[0][:, 1], label='First Pareto Front', color='b')
+    # plt.scatter(po_fitness_values_per_gen[-1][:, 0], po_fitness_values_per_gen[-1][:, 1], label='Last Pareto Front', color='r')
 
 
-    # Customize the plot
-    plt.xlabel('Steps Taken')
-    plt.ylabel('Total Weight Shifted')
-    plt.title('Pareto Front')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(log.logPath+"/paretoPlot")
-    # Extract the paths from res.X
-    #paths = res.X.squeeze().tolist()
+    # # Customize the plot
+    # plt.xlabel('Steps Taken')
+    # plt.ylabel('Total Weight Shifted')
+    # plt.title('Pareto Front')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.savefig(log.logPath+"/paretoPlot")
+    # # Extract the paths from res.X
+    # #paths = res.X.squeeze().tolist()
     
-    # This would draw all paths of the final population
+    # # This would draw all paths of the final population
     paths = po_paths_per_gen[-1].squeeze().tolist()
 
-    # Create a plot for the final grid with paths
-    fig, ax = plt.subplots(figsize=(7, 7))
+    # # Create a plot for the final grid with paths
+    # fig, ax = plt.subplots(figsize=(7, 7))
 
-    # Plot the grid
-    ax.imshow(obstacle_map, cmap='Greys', interpolation='nearest')
+    # # Plot the grid
+    # ax.imshow(obstacle_map, cmap='Greys', interpolation='nearest')
 
-    # Mark the start and end points
-    ax.plot(start[1], start[0], 'go', markersize=10, label='Start')  # Start point
-    ax.plot(end[1], end[0], 'ro', markersize=10, label='End')        # End point
+    # # Mark the start and end points
+    # ax.plot(start[1], start[0], 'go', markersize=10, label='Start')  # Start point
+    # ax.plot(end[1], end[0], 'ro', markersize=10, label='End')        # End point
 
-    # Plot the paths of the final population
-    if len(paths[0]) != 2:
-        for path in paths:
-            path_y, path_x = zip(*path)
-            ax.plot(path_x, path_y, marker='o')
-    elif len(paths[0]) == 2:
-        path_y, path_x = zip(*paths)
-        ax.plot(path_x, path_y, marker='o')
+    # # Plot the paths of the final population
+    # if len(paths[0]) != 2:
+    #     for path in paths:
+    #         path_y, path_x = zip(*path)
+    #         ax.plot(path_x, path_y, marker='o')
+    # elif len(paths[0]) == 2:
+    #     path_y, path_x = zip(*paths)
+    #     ax.plot(path_x, path_y, marker='o')
 
-    # Set the ticks and labels
-    # Set x and y ticks in steps of 10
-    ax.set_xticks(np.arange(0, width, 5))
-    ax.set_yticks(np.arange(0, height, 5))
+    # # Set the ticks and labels
+    # # Set x and y ticks in steps of 10
+    # ax.set_xticks(np.arange(0, width, 5))
+    # ax.set_yticks(np.arange(0, height, 5))
 
-    # Set x and y tick labels in steps of 10
-    ax.set_xticklabels(np.arange(0, width, 5))
-    ax.set_yticklabels(np.arange(0, height, 5))
+    # # Set x and y tick labels in steps of 10
+    # ax.set_xticklabels(np.arange(0, width, 5))
+    # ax.set_yticklabels(np.arange(0, height, 5))
 
-    plt.savefig(log.logPath+"/mapPlot")
-    log.log(paths, pareto_front[:, 0], pareto_front[:, 1])
+    # plt.savefig(log.logPath+"/mapPlot")
+    #log.log(paths, pareto_front[:, 0], pareto_front[:, 1])
     #print(f"Paths: {paths}, Pareto Front: {pareto_front[:, 0]}, Pareto Front: {pareto_front[:, 1]}")
 
     # for path in paths:
@@ -265,6 +268,10 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, second_run: bo
     object_to_log = {"Paths": paths,
                     "Steps": pareto_front[:, 0],
                     "Shifted_Weight": pareto_front[:, 1]}
+    
+    if second_run:
+        object_to_log["Number_of_Optimal_Solutions"] = number_of_opt_solutions
+        pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{int(second_run)}-{number_of_opt_solutions}-{s}.pickle"
     log.log_best_paths_as_pickle(object_to_log, pickle_filename)
 
 if __name__ == "__main__":

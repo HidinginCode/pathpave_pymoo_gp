@@ -1,14 +1,15 @@
 from pymoo.core.sampling import Sampling
 import numpy as np
+import random
 
 class RandomSampling(Sampling):
-    def __init__(self, width, height, start, end, optimal_path: list = None):
+    def __init__(self, width, height, start, end, optimal_paths: list[list] = None):
         super().__init__()
         self.width = width
         self.height = height
         self.start = start
         self.end = end
-        self.optimal_path = optimal_path
+        self.optimal_paths = optimal_paths
 
     def _do(self, problem, n_samples, **kwargs):
         X = np.full((n_samples , 1), None, dtype=object)
@@ -16,10 +17,12 @@ class RandomSampling(Sampling):
             path = self._random_path()
             X[i, 0] =path
         
-        # Insert the optimal path if one is supplied
-        if self.optimal_path is not None:
-            random_index = np.random.randint(0, len(X))
-            X[random_index, 0] = self.optimal_path
+        # Insert the optimal paths if some were supplied
+        if self.optimal_paths is not None:
+            random_indexes = random.sample(range(len(X)), k=len(self.optimal_paths))
+            for i, random_index in enumerate(range(len(random_indexes))):
+                path = self.optimal_paths[i]
+                X[random_index, 0] = self.optimal_paths[i]
         return X
 
     def _random_path(self):
