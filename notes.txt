@@ -1,0 +1,9 @@
+source /opt/spack/20240716/env.sh - For python 3.11.9 on cluster <3
+
+
+
+Chosen algorithm AGE-MOEA
+
+For radial gradient map best shift for AGE-MOEA: LR-shift
+For sinusoidal gradient map: LR-shift
+For River Map: EN-shift

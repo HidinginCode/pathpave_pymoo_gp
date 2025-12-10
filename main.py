@@ -140,9 +140,8 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_
         with open(f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{0}-{s}.pickle", "rb") as f:
             loaded_dir = pickle.load(f)
 
-            best_paths = []
-            for _ in range(number_of_opt_solutions):
-                best_paths.append(random.choice(loaded_dir["Paths"]))
+            best_paths = loaded_dir["Paths"] # Extract best paths from first run
+            num_opt = len(loaded_dir["Paths"])
         sampling = RandomSampling(width, height, start, end, best_paths)
 
     # Initialize the NSGA2 algorithm
@@ -270,8 +269,8 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_
                     "Shifted_Weight": pareto_front[:, 1]}
     
     if second_run:
-        object_to_log["Number_of_Optimal_Solutions"] = number_of_opt_solutions
-        pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{int(second_run)}-{number_of_opt_solutions}-{s}.pickle"
+        object_to_log["Number_of_Optimal_Solutions"] = num_opt
+        pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{int(second_run)}-{s}.pickle"
     log.log_best_paths_as_pickle(object_to_log, pickle_filename)
 
 if __name__ == "__main__":
