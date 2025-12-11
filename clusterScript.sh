@@ -6,7 +6,7 @@
 #SBATCH --job-name=pathpave
 
 # Make 48 cores available to our task (otherwise defaults to 1)
-#SBATCH --cpus-per-task=48
+#SBATCH --cpus-per-task=100
 
 # Use any of the compute nodes in the 'all' partition
 #SBATCH --partition=members

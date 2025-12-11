@@ -185,13 +185,13 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_
     # Extract the Pareto front data
     pareto_front = res.F
     #LOGGING
-    #log.createLogFile(obstacles, width, height, algorithm, crossover, mutation, pop_size, n_eval, sampling, repair, shiftingMethod, seed, eval_ratio_str , number_of_opt_solutions, totalTime)
+    log.createLogFile(obstacles, width, height, algorithm, crossover, mutation, pop_size, n_eval, sampling, repair, shiftingMethod, seed, eval_ratio_str , number_of_opt_solutions, totalTime)
 
     #for i in range(len(callback.data["paths"])):
     #    log.logAllGenerationalSteps(callback.data["objectiveValues"][i], callback.data["paths"][i], i)
 
-    #for i in range(len(callback.data["optPaths"])):
-    #    log.logOptGenerationalSteps(callback.data["optObjectiveValues"][i], callback.data["optPaths"][i], i)
+    for i in range(len(callback.data["optPaths"])):
+        log.logOptGenerationalSteps(callback.data["optObjectiveValues"][i], callback.data["optPaths"][i], i, second_run)
     #print(pareto_front[:, 0])
 
     # Extract the Pareto optimal paths and fitness values

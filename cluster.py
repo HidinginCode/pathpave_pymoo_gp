@@ -5,6 +5,12 @@ from multiprocessing import Process, Pool, freeze_support, get_context
 from copy import deepcopy
 
 def main():
+
+    os.mkdir("opt_log_second")
+    os.mkdir("opt_log")
+    os.mkdir("./pickle_objects")
+    os.mkdir("./pickle_objects_2")
+
     maps = [0,2,3]
     width = 50
     height = 50
@@ -67,7 +73,7 @@ def main():
     callMultiprocessing(args)
 
 def callMultiprocessing(args: tuple):
-    number_of_processes = min(48, os.cpu_count())
+    number_of_processes = min(100, os.cpu_count())
     with get_context("spawn").Pool(number_of_processes) as pool:
         pool.map(multiProcessSimulations, args)
         pool.close()
