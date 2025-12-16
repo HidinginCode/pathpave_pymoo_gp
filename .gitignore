@@ -135,3 +135,8 @@ pickle_objects/
 pickle_objects_2/
 .log_2
 log_2/
+
+opt_log/
+opt_log/*
+opt_log_second/
+opt_log_second/*
