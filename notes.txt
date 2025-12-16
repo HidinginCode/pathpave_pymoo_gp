@@ -7,3 +7,8 @@ Chosen algorithm AGE-MOEA
 For radial gradient map best shift for AGE-MOEA: LR-shift
 For sinusoidal gradient map: LR-shift
 For River Map: EN-shift
+
+
+michael slide 45: Why not local radio communication?
+
+For locating robots in global frame, around field 3 anchor nodes with known position (GPS) and then triangulation
