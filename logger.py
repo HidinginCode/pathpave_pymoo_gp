@@ -80,13 +80,13 @@ class Logger():
         frame = frame.transpose()
         frame.to_csv(f"{self.basePath}/results.csv", mode='a', index = False, header=False)
 
-    def logAllGenerationalSteps(self, objectiveTuple, paths, generation):
-        #Check if csv for generations exist
-        if not os.path.exists(self.logPath +"/log.csv"):
-            with open(self.logPath +"/log.csv", "w") as f:
-                header = "generation, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, objectiveValues, paths\n"
-                f.write(header)
-                f.close()
+    def logAllGenerationalSteps(self, objectiveTuple, paths, generation, second_run):
+
+        if not second_run:
+            base_path = "all_log"
+        else:
+            base_path = "all_log_second"
+        #
         formattedPaths = []
         for x in paths:
             formattedPaths.append(x[0])
@@ -101,6 +101,7 @@ class Logger():
             "mutation": self.mutation,
             "popsize": self.popsize,
             "n_eval": self.n_eval,
+            "ratio": self.eval_ratio,
             "samplingFunction": self.samplingFunction,
             "repairFunction": self.repairFunction,
             "shiftingMethod": self.shiftingMethod,
@@ -108,9 +109,10 @@ class Logger():
             "objectives": list(objectiveTuple),
             "paths": formattedPaths,
         }
-        frame = pd.DataFrame.from_dict(log_obj, orient='index')
-        frame = frame.transpose()
-        frame.to_csv(self.logPath +"/log.csv", mode='a', index = False, header=False)
+        dir = f"{self.map}_{self.eval_ratio}_all"
+        os.makedirs(os.path.join(base_path, dir), exist_ok=True)
+        with open(base_path+"/"+dir+"/"+f"/all_{self.seed}_{generation}.pickle", "wb") as f:
+            pickle.dump(log_obj, f)
 
     def logOptGenerationalSteps(self, objectiveTuple, paths, generation, second_run):
         if not second_run:

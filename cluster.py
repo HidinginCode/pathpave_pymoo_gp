@@ -10,6 +10,8 @@ def main():
     os.mkdir("opt_log")
     os.mkdir("./pickle_objects")
     os.mkdir("./pickle_objects_2")
+    os.mkdir("./all_log")
+    os.mkdir("./all_log_second")
 
     maps = [0,2,3]
     width = 50

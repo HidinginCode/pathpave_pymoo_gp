@@ -192,7 +192,9 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_
 
     for i in range(len(callback.data["optPaths"])):
         log.logOptGenerationalSteps(callback.data["optObjectiveValues"][i], callback.data["optPaths"][i], i, second_run)
-    #print(pareto_front[:, 0])
+    
+    for i in range(len(callback.data["paths"])):
+        log.logAllGenerationalSteps(callback.data["objectiveValues"][i], callback.data["paths"][i], i, second_run)
 
     # Extract the Pareto optimal paths and fitness values
     po_fitness_values_per_gen = callback.data["optObjectiveValues"]
@@ -262,7 +264,9 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_
     #             raise ValueError("Path was fucked up")
     if type(paths[0]) != list:
         paths = [paths]
-    
+
+
+
     pickle_filename = f"{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{int(second_run)}-{s}.pickle"
     object_to_log = {"Paths": paths,
                     "Steps": pareto_front[:, 0],
