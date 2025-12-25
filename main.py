@@ -137,7 +137,7 @@ def simulation(m, w, h, a, c, mut, p, n, sm, s, eval_ratio:float, number_of_opt_
     if not second_run:
         sampling = RandomSampling(width, height, start, end)
     else:
-        with open(f"./pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{0}-{s}.pickle", "rb") as f:
+        with open(f"./log/pickle_objects/{m}-{w}-{h}-{a}-{c}-{mut}-{p}-{eval_ratio_str}-{sm}-{0}-{s}.pickle", "rb") as f:
             loaded_dir = pickle.load(f)
 
             best_paths = loaded_dir["Paths"] # Extract best paths from first run

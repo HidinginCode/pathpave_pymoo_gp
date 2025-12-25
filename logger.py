@@ -11,13 +11,12 @@ class Logger():
     def __init__(self, second_run: bool = False) -> None:
         """Init method that creates log directory if it does not exist."""
         self.second_run = second_run
+        self.basePath = "./log"
         if not second_run:
-            self.basePath = "./log"
-            self.pickle_path = "./pickle_objects"
+            self.pickle_path = "./log/pickle_objects"
 
         else:
-            self.basePath = "./log_2"
-            self.pickle_path = "./pickle_objects_2"
+            self.pickle_path = "./log/pickle_objects_2"
     
     def createLogFile(self, map, width, height, algorithm, crossover, mutation, popsize, n_eval, samplingFunction, repairFunction, shiftingMethod, seed, eval_ratio, number_of_opt_solutions, totalTime):
         """Creates a logfile for the path."""
@@ -83,9 +82,9 @@ class Logger():
     def logAllGenerationalSteps(self, objectiveTuple, paths, generation, second_run):
 
         if not second_run:
-            base_path = "all_log"
+            base_path = "./log/all_log"
         else:
-            base_path = "all_log_second"
+            base_path = "./log/all_log_second"
         #
         formattedPaths = []
         for x in paths:
@@ -111,14 +110,15 @@ class Logger():
         }
         dir = f"{self.map}_{self.eval_ratio}_all"
         os.makedirs(os.path.join(base_path, dir), exist_ok=True)
-        with open(base_path+"/"+dir+"/"+f"/all_{self.seed}_{generation}.pickle", "wb") as f:
+        os.makedirs(os.path.join(base_path, dir, f"{self.seed}"), exist_ok=True)
+        with open(base_path+"/"+dir+"/"+f"{self.seed}/all_{self.seed}_{generation}.pickle", "wb") as f:
             pickle.dump(log_obj, f)
 
     def logOptGenerationalSteps(self, objectiveTuple, paths, generation, second_run):
         if not second_run:
-            base_path = "opt_log"
+            base_path = "./log/opt_log"
         else:
-            base_path = "opt_log_second"
+            base_path = "./log/opt_log_second"
 
         formattedPaths = []
         for x in paths:
@@ -144,7 +144,8 @@ class Logger():
         }
         dir = f"{self.map}_{self.eval_ratio}_opt"
         os.makedirs(os.path.join(base_path, dir), exist_ok=True)
-        with open(base_path+"/"+dir+"/"+f"/opt_{self.seed}_{generation}.pickle", "wb") as f:
+        os.makedirs(os.path.join(base_path, dir, f"{self.seed}"), exist_ok=True)
+        with open(base_path+"/"+dir+"/"+f"{self.seed}/opt_{self.seed}_{generation}.pickle", "wb") as f:
             pickle.dump(log_obj, f)
 
     def log_best_paths_as_pickle(self, object: dict, filename: str) -> None:

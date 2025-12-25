@@ -5,13 +5,14 @@ from multiprocessing import Process, Pool, freeze_support, get_context
 from copy import deepcopy
 
 def main():
-
-    os.mkdir("opt_log_second")
-    os.mkdir("opt_log")
-    os.mkdir("./pickle_objects")
-    os.mkdir("./pickle_objects_2")
-    os.mkdir("./all_log")
-    os.mkdir("./all_log_second")
+    log_dir = "./log"
+    os.mkdir(log_dir)
+    os.mkdir(os.path.join(log_dir,"opt_log_second"))
+    os.mkdir(os.path.join(log_dir,"opt_log"))
+    os.mkdir(os.path.join(log_dir,"./pickle_objects"))
+    os.mkdir(os.path.join(log_dir,"./pickle_objects_2"))
+    os.mkdir(os.path.join(log_dir,"./all_log"))
+    os.mkdir(os.path.join(log_dir,"./all_log_second"))
 
     maps = [0,2,3]
     width = 50
@@ -98,6 +99,7 @@ def getCombinations(maps, width, height, algorithms, crossovers, mutations, pop,
     return (combinations_run1, combinations_run2)
 
 def multiProcessSimulations(args: tuple):
+    print(f"Worker {os.getpid()} has started working ...")
     c, second_run = args
     m.simulation(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], second_run)
 
