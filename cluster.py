@@ -21,7 +21,7 @@ def main():
     crossovers = 2
     mutations = 0
     pop = 100
-    total_n_eval = 100000
+    total_n_eval = 4000
     eval_ratios = [0.3, 0.5, 0.7] # This tells us how much of the total evaluations the first run gets
     shiftingMethods = [1]
     seeds = [42, 69, 420, 1080, 1337, 617991, 799403, 302116, 414881, 718149, 659294, 327967, 4978, 167867, 247737, 890651, 853402, 996794, 489263, 972757, 269475, 282126, 397562, 400459, 353156, 202975, 684799, 190391, 591868, 296699, 856797]
